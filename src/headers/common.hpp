@@ -10,6 +10,7 @@
 #include <map>
 
 #ifdef _WIN32
+    #define WINDOWS_LEAN_AND_MEAN
     #include <windows.h>
     #include <tchar.h>
     #include <strsafe.h>
@@ -44,7 +45,8 @@ private:
 
 // string util
 bool inString(const string& str, const string& lookFor);
-StringVector split(string str, const string& delim);
+bool stringEnd(const string& str, const string& suff);
+StringVector split(string str, const string& delim, int splitCount);
 
 // direct file IO
 StringVector readFile(const string& fileName);
@@ -59,7 +61,9 @@ void copyFile(const string& source, const string& destination);
 void copyFolder(const string& source, const string& destination);
 void removeFile(const string& fileName);
 void removeFolder(const string& folderName);
+bool createFolder(const string& path);
 bool fileExists(const string& fileName);
+
 StringVector listFiles(const string& pwd, bool recursive);
 StringVector filesWithExt(const string& pwd, const string& ext);
 

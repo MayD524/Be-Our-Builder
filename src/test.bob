@@ -1,1 +1,6 @@
-lang=hello
+lang=cpp
+compiler=g++
+flags=-std=c++17 -O3 -Ofast
+outDir=./build
+outFile=main.exe
+src=*.cpp

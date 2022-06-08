@@ -106,23 +106,40 @@ bool inString(const string& str, const string& subStr) {
     return str.find(subStr) != string::npos;
 }
 
-StringVector split(string str, const string& delim) {
+StringVector split(string str, const string& delim, int splitCount=-1) {
     StringVector out;
 
     string token;
     size_t pos = 0;
-    
+    int splitCnt = 0;
     while ((pos = str.find(delim)) != string::npos) {
         token = str.substr(0, pos);
         out.push_back(token);
         str.erase(0, pos+delim.length());
+        splitCnt++;
+        if (splitCnt == splitCount) { break; }
     }
     out.push_back(str);
     return out;
 }
 
+bool createFolder(const string& path) {
+    if (CreateDirectory((LPCSTR)path.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()){
+        return true;
+    }
+    return false;
+}
+
+bool stringEnd(const string& str, const string& suff) {
+    if (str.length() < suff.length()) return false;
+    return (0 == str.compare(str.length() - suff.length(), suff.length(), suff));
+}
+
 StringVector listFiles(const string& pwd, bool recursive=true) {
     StringVector lsFiles;
+    if (stringEnd(pwd, "..")) {
+        return lsFiles;
+    }
     #ifdef _WIN32
         WIN32_FIND_DATA fd;
         TCHAR szDir[MAX_PATH];
@@ -137,10 +154,15 @@ StringVector listFiles(const string& pwd, bool recursive=true) {
         StringCchCat(szDir, MAX_PATH, TEXT("\\*"));
 
         hFind = FindFirstFile(szDir, &fd);
-
         assert(INVALID_HANDLE_VALUE != hFind, "FindFirstFile has failed, Invalid handle");
-
         while (FindNextFile(hFind, &fd) != 0) {
+            if (fd.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY)
+            {
+                string path = pwd + (char*) fd.cFileName;
+                StringVector tmp = listFiles(path, true);
+                for(string t : tmp)
+                    lsFiles.push_back(t);
+            }
             lsFiles.push_back(string((char*) fd.cFileName));
         }
 

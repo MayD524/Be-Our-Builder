@@ -13,15 +13,24 @@ Config* readConfig(string& configFile) {
     newConfig->fileName = configFile;
     StringVector cfData = readFile(configFile);
     for (string& line : cfData) {
-        StringVector cfg = split(line, "=");
+        StringVector cfg = split(line, "=", 1);
         assert(cfg.size() > 1, "Too few arguments for config > " + line);
         newConfig->config.insert(std::pair<string,string>(cfg[0], cfg[1]));
     }
     return newConfig;
 }
 
-
 void build(Config* conf, BuildOptions opt=BUILD_ALL) { 
-    assert(inMap(conf->config, "lang"), "Language not defined.");
-    printf("%s\n",conf->config["lang"].c_str());
+    assert(inMap(conf->config, "outDir"), "No build directory defined");
+    assert(inMap(conf->config, "src"), "No source defined");
+    assert(createFolder(conf->config["outDir"]), "Build directory could not be made. Maybe try running as admin?");
+    string workingDir = inMap(conf->config, "root") ? conf->config["root"] : "./";
+    
+    if (inString(conf->config["src"], "*.")) {
+        string ext = conf->config["src"];
+        ext = ext.substr(1, ext.length());
+    }
+
+
+
 }
